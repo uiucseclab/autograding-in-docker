@@ -68,7 +68,7 @@ elif [[ $1 == "root_access" ]]; then
     echo -e "========================================\nPrinting out /etc/shadow using root-access cat"
     ./cat /etc/shadow
     echo -e "========================================\nStarting root access shell"
-    ./sh
+    ./sh -p
     popd
 elif [[ $1 == "rm_root" ]]; then
     echo "Building root access shell"

@@ -5,8 +5,12 @@ isolated the basic usage into a single bash script and supplementary
 Dockerfiles that handle the Docker things. The bash script handles generating
 the Docker images as necessary.
 
-It may be necessary to run it within UIUC's network since there are some UIUC
-repositories required to correctly match the 241 VM environment.
+You will need to install Docker, and ideally set it up so that a non-root user
+can use it. Usually this is done by simply adding the user to the docker group.
+You can also just run the script under sudo, though for the actual autograder I
+would want to avoid that. It may be necessary to run it within UIUC's network
+since there are some UIUC repositories required to correctly match the 241 VM
+environment.
 
 As a side note, due to the way Docker runs the process as PID 1, the programs
 will ignore SIGINT and SIGTERM by default so ctrl-c won't work. Instead, you
@@ -34,6 +38,12 @@ limits is moderately effective since the system is still mostly usable even
 during the fork bomb. Although killing the process still takes longer than
 ideal, fork bombs are not crippling when isolated within a Docker container.
 
+Also it seems that kernel memory limits and swap memory limits are not
+supported on "older" Linux kernels (< 4.0) so this example may not work
+correctly. It definitely works on Arch Linux where I tested it. It seems to
+successfully stop on Ubuntu 14.04, but it isn't nearly as effective at
+preventing system slowdown.
+
 ## Root Access
 This program very simply copies the executables cat and sh into the host's
 directory and sets the set-uid bit on them. Of course, this requires the host
@@ -46,7 +56,10 @@ attacker could trick the user into executing something.
 
 After creating the root-access executables, the script will attempt to cat
 /etc/shadow as a demonstration of root permissions and then start a root-access
-shell.
+shell. The root-access shell however doesn't always start with root permissions
+since it seems that bash and sh helpfully throw away root access if the euid
+doesn't match the uid. You can give it the '-p' flag to override this
+behaviour.
 
 The Docker developers claim that this is intended behaviour since in their
 mind, any one with the ability to run Docker containers essentially has root
